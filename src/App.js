@@ -35,7 +35,7 @@ function App() {
         className="App w-full h-screen"
         style={{ background: "rgb(18, 19, 19)" }}
       >
-        <div className="w-3/4 h-screen m-auto">
+        <div className="w-11/12 sm:w-3/4 h-screen m-auto">
           {memes && (
             <GuessMeme
               reloadMeme={reloadMeme}

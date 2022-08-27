@@ -5,11 +5,12 @@ import {
   Button,
   styled,
   Tooltip,
+  Paper,
 } from "@mui/material";
 import Confetti from "react-dom-confetti";
 
-import success from "../images/success.gif";
-import failure from "../images/failure.gif";
+// import success from "../images/success.gif";
+// import failure from "../images/failure.gif";
 
 const MyButton = styled(Button)({
   marginTop: "1rem",
@@ -21,8 +22,21 @@ const MyButton = styled(Button)({
   },
 });
 
+const CustomPaper = (props) => {
+  return (
+    <Paper
+      style={{ background: "#3c3c3c", color: "#f3f3f3" }}
+      elevation={8}
+      {...props}
+    />
+  );
+};
+
 const StyledTextField = styled(TextField)`
   color: #1976d1;
+  & .MuiAtuocomplete-popper {
+    background: red;
+  }
   & .MuiInputBase-root.MuiOutlinedInput-root.Mui-disabled {
     background: #3c3c3c;
     opacity: 0.6;
@@ -86,17 +100,22 @@ const GuessMeme = ({ meme, memeNames, reloadMeme }) => {
   const [showRefresh, setShowRefresh] = useState(false);
   const [showStatus, setShowStatus] = useState([]);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [alert, setAlert] = useState(null);
 
   const onChange = (e, newValue) => {
-    console.log(e, newValue);
     const guessedMemeName = newValue;
     setMemeName(guessedMemeName);
-    console.log(guessedMemeName);
+    if (memeName !== "" || !memeName) {
+      setAlert(null);
+    }
   };
 
   const onClick = () => {
+    if (memeName === "" || !memeName) {
+      setAlert({ msg: "Please enter something", type: "danger" });
+      return;
+    }
     setCount(count + 1);
-    console.log(count);
     if (count + 1 === MAX_COUNT) {
       setShowRefresh(true);
     }
@@ -124,6 +143,14 @@ const GuessMeme = ({ meme, memeNames, reloadMeme }) => {
       >
         Guess-The-Meme
       </h3>
+      {alert && (
+        <p
+          style={{ fontFamily: "Gloria Hallelujah" }}
+          className="p-1 w-full bg-red-600 rounded text-white mt-3 block text-md"
+        >
+          {alert.msg}
+        </p>
+      )}
       {meme && (
         <img
           className="h-2/4 w-auto mx-auto py-6"
@@ -136,12 +163,19 @@ const GuessMeme = ({ meme, memeNames, reloadMeme }) => {
           {(() => {
             const statuses = [];
             showStatus.forEach((status) => {
+              const key = Math.random();
               status
                 ? statuses.push(
-                    <i className="fa-solid fa-square-check text-green-600 text-4xl mx-2"></i>
+                    <i
+                      key={key}
+                      className="fa-solid fa-square-check text-green-600 text-4xl mx-2"
+                    ></i>
                   )
                 : statuses.push(
-                    <i className="fa-solid fa-square-xmark text-red-600 text-4xl mx-2"></i>
+                    <i
+                      key={key}
+                      className="fa-solid fa-square-xmark text-red-600 text-4xl mx-2"
+                    ></i>
                   );
             });
             return statuses;
@@ -151,7 +185,7 @@ const GuessMeme = ({ meme, memeNames, reloadMeme }) => {
       {showRefresh && isCorrect && (
         <div
           style={{ fontFamily: "Gloria Hallelujah" }}
-          className="w-full mx-auto text-white mb-4 text-2xl"
+          className="w-full mx-auto text-white mb-4 text-xl sm:text-2xl"
         >
           {(count === 1 || count === 2) && (
             <p>
@@ -172,15 +206,26 @@ const GuessMeme = ({ meme, memeNames, reloadMeme }) => {
             </p>
           )}
           {count === 5 && <p>Phew!!! 😮‍💨 You got it on the last chance</p>}
+          <p className="my-2">
+            It is{" "}
+            <strong className="text-md text-green-600">{meme.name}</strong>{" "}
+            indeed!!!
+          </p>
         </div>
       )}
       {showRefresh && !isCorrect && (
         <div
           style={{ fontFamily: "Gloria Hallelujah" }}
-          className="w-full mx-auto text-white mb-4 text-2xl"
+          className="w-full mx-auto text-white mb-4 text-xl sm:text-2xl"
         >
           {count === 5 && (
-            <p>It's okay 😓. You are not alone 🤗. Try again!!!!</p>
+            <>
+              <p>It's okay 😓. You are not alone 🤗. Try again!!!!</p>
+              <p className="my-2">
+                Btw, it is{" "}
+                <strong className="text-md text-green-600">{meme.name}</strong>{" "}
+              </p>
+            </>
           )}
         </div>
       )}
@@ -192,8 +237,9 @@ const GuessMeme = ({ meme, memeNames, reloadMeme }) => {
         options={memeNames}
         sx={{ width: 300 }}
         disabled={showRefresh}
+        PaperComponent={CustomPaper}
         renderInput={(params) => (
-          <StyledTextField {...params} label="Meme Name" />
+          <StyledTextField error={!!alert} {...params} label="Meme Name" />
         )}
         value={memeName}
         onChange={onChange}
@@ -230,16 +276,16 @@ const GuessMeme = ({ meme, memeNames, reloadMeme }) => {
         )}
       </div>
       <Tooltip title="You have 5 chances to guess the meme. Submit your guesses in the textfeild below :)">
-        <i className="fa-solid fa-circle-info text-xl text-white opacity-80 absolute top-8 right-8 hover:cursor-pointer"></i>
+        <i className="fa-solid fa-circle-info text-xl text-white opacity-80 absolute top-6 right-6 sm:top-8 sm:right-8 hover:cursor-pointer"></i>
       </Tooltip>
-      <div className="w-full my-4 flex justify-center">
+      {/* <div className="w-full my-4 flex justify-center">
         {isCorrect && showRefresh && (
           <img width={120} height={100} src={success} alt="success" />
         )}
         {!isCorrect && showRefresh && (
           <img width={170} height={150} src={failure} alt="failure" />
         )}
-      </div>
+      </div> */}
       <div className="footer w-full flex justify-center mt-auto items-center">
         <p className="text-white text-md">Follow : </p>
         <a
