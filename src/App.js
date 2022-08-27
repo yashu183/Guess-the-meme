@@ -13,7 +13,6 @@ function App() {
     setIsLoading(true);
     async function getMemes() {
       const res = await axios.get("https://api.imgflip.com/get_memes");
-      console.log(res);
       setMemes(res.data.data.memes);
       setIsLoading(false);
     }
